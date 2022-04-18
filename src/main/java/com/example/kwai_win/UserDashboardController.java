@@ -37,11 +37,14 @@ import java.sql.Statement;
 
 public class UserDashboardController implements Initializable{
 
+    KWAiUser user = loginController.user;
+    int userID = user.getUID();
+
     private Stage stage;
     private Scene scene;
     private Parent root;
 
-    //    @FXML
+//    @FXML
 //    private LineChart lineChart;
     @FXML
     private Label aro;
@@ -79,7 +82,7 @@ public class UserDashboardController implements Initializable{
             Connection connectDB = connection.getConnection();
 
             try {
-                String lastArousal = "SELECT aScore FROM Takes WHERE uID = 50 ORDER BY date DESC LIMIT 1;";
+                String lastArousal = "SELECT aScore FROM Takes WHERE uID = " + userID + " ORDER BY date DESC LIMIT 1;";
                 Statement statement = connectDB.createStatement();
                 ResultSet queryResult1 = statement.executeQuery(lastArousal);
 
@@ -105,7 +108,7 @@ public class UserDashboardController implements Initializable{
             Connection connectDB = connection.getConnection();
 
             try {
-                String lastValence = "SELECT vScore FROM Takes WHERE uID = 50 ORDER BY date DESC LIMIT 1;";
+                String lastValence = "SELECT vScore FROM Takes WHERE uID = " + userID + " ORDER BY date DESC LIMIT 1;";
                 Statement statement = connectDB.createStatement();
                 ResultSet queryResult2  = statement.executeQuery(lastValence);
 
@@ -132,7 +135,36 @@ public class UserDashboardController implements Initializable{
         int average = (arousal + valence)/ 2;
         avg.setText("" + average + "");
 
-        viz.setText("Happy");
+
+        String lastVisual = "";
+        try {
+            // Database Connection stuff
+            DatabaseConnection connection = new DatabaseConnection();
+            Connection connectDB = connection.getConnection();
+
+            try {
+                String lastViz = "SELECT vID FROM Creates WHERE uID = " + userID + " ORDER BY date DESC LIMIT 1;";
+                Statement statement = connectDB.createStatement();
+                ResultSet queryResult2  = statement.executeQuery(lastViz);
+
+                while(queryResult2.next()) {
+                    if (queryResult2.getInt(1) == 1) {
+                        lastVisual = queryResult2.getString("vID");
+                    } else {
+                        viz.setText("N/A");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        viz.setText(lastVisual);
+
+
         showLineCharts();
 
 
@@ -185,22 +217,6 @@ public class UserDashboardController implements Initializable{
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
-    }
-    @FXML
-    void latest(ActionEvent event) throws IOException {
-        //Insert latest query here
-    }
-    @FXML
-    void oneWeek(ActionEvent event) throws IOException {
-        //Insert oneWeek query here
-    }
-    @FXML
-    void oneMonth(ActionEvent event) throws IOException {
-        //Insert oneMonth query here
-    }
-    @FXML
-    void threeMonth(ActionEvent event) throws IOException {
-        //Insert threeMonth query here
     }
 
 
