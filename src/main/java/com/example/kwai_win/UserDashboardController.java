@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.PreparedStatement;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,13 +30,18 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.scene.chart.*;
 
+// These imports are for using JDBC
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 public class UserDashboardController implements Initializable{
 
     private Stage stage;
     private Scene scene;
     private Parent root;
 
-//    @FXML
+    //    @FXML
 //    private LineChart lineChart;
     @FXML
     private Label aro;
@@ -60,11 +66,72 @@ public class UserDashboardController implements Initializable{
     private PasswordField passwordPasswordField;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(URL url, ResourceBundle rb)  {
 
-        aro.setText("150");
-        val.setText("300");
-        avg.setText("215");
+        int arousal = 10;
+        int valence = 10;
+
+        // TODO: Make this query dynamic to the user
+
+        try {
+            // Database Connection stuff
+            DatabaseConnection connection = new DatabaseConnection();
+            Connection connectDB = connection.getConnection();
+
+            try {
+                String lastArousal = "SELECT aScore FROM Takes WHERE uID = 50 ORDER BY date DESC LIMIT 1;";
+                Statement statement = connectDB.createStatement();
+                ResultSet queryResult1 = statement.executeQuery(lastArousal);
+
+                while(queryResult1.next()) {
+                    if (queryResult1.getInt(1) == 1) {
+                        arousal = queryResult1.getInt("aScore");
+                    } else {
+                        aro.setText("N/A");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            // Database Connection stuff
+            DatabaseConnection connection = new DatabaseConnection();
+            Connection connectDB = connection.getConnection();
+
+            try {
+                String lastValence = "SELECT vScore FROM Takes WHERE uID = 50 ORDER BY date DESC LIMIT 1;";
+                Statement statement = connectDB.createStatement();
+                ResultSet queryResult2  = statement.executeQuery(lastValence);
+
+                while(queryResult2.next()) {
+                    if (queryResult2.getInt(1) == 1) {
+                        valence = queryResult2.getInt("vScore");
+                    } else {
+                        val.setText("N/A");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // if query was successful, these should set to the arousal and valence from the latest emotional assessment that the user completed
+        aro.setText(" " + arousal + " ");
+        val.setText(" " + valence + " ");
+
+        int average = (arousal + valence)/ 2;
+        avg.setText("" + average + "");
+
         viz.setText("Happy");
         showLineCharts();
 
@@ -118,6 +185,22 @@ public class UserDashboardController implements Initializable{
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+    }
+    @FXML
+    void latest(ActionEvent event) throws IOException {
+        //Insert latest query here
+    }
+    @FXML
+    void oneWeek(ActionEvent event) throws IOException {
+        //Insert oneWeek query here
+    }
+    @FXML
+    void oneMonth(ActionEvent event) throws IOException {
+        //Insert oneMonth query here
+    }
+    @FXML
+    void threeMonth(ActionEvent event) throws IOException {
+        //Insert threeMonth query here
     }
 
 
